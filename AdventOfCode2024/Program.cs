@@ -20,6 +20,7 @@ public class Program
         IDay solver = parsedArgs.Day switch
         {
             1 => new Day01(),
+            2 => new Day02(),
             _ => throw new ArgumentException($"No solver registered for day {day}")
         };
 
