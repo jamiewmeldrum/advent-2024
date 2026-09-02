@@ -9,6 +9,10 @@ public class Program
         {
             Console.WriteLine("Usage: dotnet run -- <day> [part]");
             Console.WriteLine("  part is 1 or 2; if omitted, both parts run");
+            Console.WriteLine();
+            Console.WriteLine("Examples:");
+            Console.WriteLine("  dotnet run -- 1      (runs day 1, both parts)");
+            Console.WriteLine("  dotnet run -- 1 2     (runs day 1, part 2 only)");
             return;
         }
         
