@@ -21,6 +21,6 @@ public class Day02Tests
 
         var result = day.SolvePart2(ExampleInput);
 
-        Assert.Equal(0L, result); // TODO: replace with the real expected value once you know it
+        Assert.Equal(4L, result); // TODO: replace with the real expected value once you know it
     }
 }
