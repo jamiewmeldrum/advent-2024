@@ -1,0 +1,6 @@
+bin/
+obj/
+
+# Advent of Code asks you not to publish your personal puzzle input or the puzzle text
+AdventOfCode2024/Inputs/**/*.txt
+AdventOfCode2024.Tests/Inputs/**/*.txt
