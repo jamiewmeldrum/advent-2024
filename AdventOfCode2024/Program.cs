@@ -21,6 +21,7 @@ public class Program
         {
             1 => new Day01(),
             2 => new Day02(),
+            3 => new Day03(),
             _ => throw new ArgumentException($"No solver registered for day {day}")
         };
 
