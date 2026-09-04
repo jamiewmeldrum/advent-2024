@@ -10,7 +10,7 @@ public class Day04 : IDay
 
     public long SolvePart2(string[] input)
     {
-        // TODO: implement
-        throw new NotImplementedException();
+        Grid grid = new(input);
+        return grid.SearchForCrossTextMatchesCount("MAS");
     }
 }
