@@ -15,10 +15,12 @@ public class Day05 : IDay
             string[] splitRule = orderingRule.Split("|");
             string key = splitRule[0];
             string newValue = splitRule[1];
-            rules.TryGetValue(key, out List<string>? value);
-            value ??= [];
-            value.Add(newValue);
-            rules[key] = value;
+            if (!rules.TryGetValue(key, out List<string>? pages))
+            {
+                pages = [];
+                rules[key] = pages;
+            }
+            pages.Add(newValue);
         }
 
         int total = 0;
