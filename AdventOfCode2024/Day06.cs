@@ -4,8 +4,13 @@ public class Day06 : IDay
 {
     public long SolvePart1(string[] input)
     {
-        // TODO: implement
-        throw new NotImplementedException();
+        MazeGrid grid = new(input);
+        while (grid.GridContainsCommandChar())
+        {
+            grid.UpdateMaze();
+        }
+
+        return grid.CountLocationsPassedThrough();
     }
 
     public long SolvePart2(string[] input)

@@ -4,13 +4,13 @@ public class Day04 : IDay
 {
     public long SolvePart1(string[] input)
     {
-        Grid grid = new(input);
+        WordSearchGrid grid = new(input);
         return grid.SearchForTextMatchesCount("XMAS");
     }
 
     public long SolvePart2(string[] input)
     {
-        Grid grid = new(input);
+        WordSearchGrid grid = new(input);
         return grid.SearchForCrossTextMatchesCount("MAS");
     }
 }
