@@ -1,13 +1,13 @@
 namespace AdventOfCode2024;
 
-public abstract class Grid
+public sealed class Grid
 {
-    protected readonly int Height;
-    protected readonly int Width;
-    protected readonly char[,] BackingArray;
-    protected readonly Dictionary<char, List<Coordinate>> CharacterLookupDict;
+    private readonly int Height;
+    private readonly int Width;
+    private readonly char[,] BackingArray;
+    private readonly Dictionary<char, List<Coordinate>> CharacterLookupDict;
 
-    protected Grid(string[] input)
+    public Grid(string[] input)
     {
         Height = input.Length;
         Width = input[0].ToCharArray().Length;
@@ -36,25 +36,43 @@ public abstract class Grid
         CharacterLookupDict = dict;
     }
 
-    protected char GetCharAtPositionOrReturnEmptyIfOutOfRange(int x, int y)
+    public List<Coordinate> GetCharacterCoordinates(char c)
     {
-        if (IsPositionInRange(x, y))
-        {
-            return BackingArray[Height - 1 - y, x];
-        }
-        return ' ';
+        return CharacterLookupDict.TryGetValue(c, out List<Coordinate>? positions) ? [.. positions] : [];
     }
 
-    protected bool IsPositionInRange(int x, int y)
+    public char GetCharAt(Coordinate position)
     {
-        if (x < 0 || x >= Width || y < 0 || y >= Height)
-        {
-            return false;
-        }
-        return true;
+        (int row, int column) = ToArrayIndices(position);
+        return BackingArray[row, column];
     }
 
-    public bool IsPositionOnGrid(Coordinate position) => IsPositionInRange(position.X, position.Y);
+    public void SetCharAt(Coordinate position, char character)
+    {
+        (int row, int column) = ToArrayIndices(position);
+        char previousCharacter = BackingArray[row, column];
+        List<Coordinate> previousPositions = CharacterLookupDict[previousCharacter];
+        previousPositions.Remove(position);
+        if (previousPositions.Count == 0)
+        {
+            CharacterLookupDict.Remove(previousCharacter);
+        }
 
-    protected (int Row, int Column) ToArrayIndices(Coordinate position) => (Height - 1 - position.Y, position.X);
+        BackingArray[row, column] = character;
+
+        if (!CharacterLookupDict.TryGetValue(character, out List<Coordinate>? positions))
+        {
+            positions = [];
+            CharacterLookupDict[character] = positions;
+        }
+        positions.Add(position);
+    }
+
+    public char GetCharAt(Coordinate position, char fallback) =>
+        IsPositionOnGrid(position) ? GetCharAt(position) : fallback;
+
+    public bool IsPositionOnGrid(Coordinate position) =>
+        position.X >= 0 && position.X < Width && position.Y >= 0 && position.Y < Height;
+
+    private (int Row, int Column) ToArrayIndices(Coordinate position) => (Height - 1 - position.Y, position.X);
 }

@@ -4,18 +4,46 @@ public class Day06 : IDay
 {
     public long SolvePart1(string[] input)
     {
-        MazeGrid grid = new(input);
-        while (grid.GridContainsCommandChar())
+        Maze maze = new(new Grid(input));
+        do
         {
-            grid.UpdateMaze();
+            maze.UpdateMaze();
         }
+        while (maze.GuardIsOnGrid);
 
-        return grid.CountLocationsPassedThrough();
+        return maze.CountLocationsPassedThrough();
     }
 
     public long SolvePart2(string[] input)
     {
-        // TODO: implement
-        throw new NotImplementedException();
+        Maze baseMaze = new(new Grid(input));
+        do
+        {
+            baseMaze.UpdateMaze();
+        }
+        while (baseMaze.GuardIsOnGrid);
+
+        List<Coordinate> candidates =
+        [
+            .. baseMaze.GetVisitedPositions().Where(position => position != baseMaze.StartPosition)
+        ];
+
+        int closedLoops = 0;
+        Parallel.ForEach(candidates, emptySpace =>
+        {
+            Maze maze = new(new Grid(input));
+            maze.AddObstacleAt(emptySpace);
+            do
+            {
+                maze.UpdateMaze();
+            }
+            while (maze.GuardIsOnGrid && !maze.ConfirmedClosedLoop);
+
+            if (maze.ConfirmedClosedLoop)
+            {
+                Interlocked.Increment(ref closedLoops);
+            }
+        });
+        return closedLoops;
     }
 }
