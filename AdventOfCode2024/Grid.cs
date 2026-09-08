@@ -1,69 +1,76 @@
+using System.Text;
+
 namespace AdventOfCode2024;
 
 public sealed class Grid
 {
-    private readonly int Height;
-    private readonly int Width;
-    private readonly char[,] BackingArray;
-    private readonly Dictionary<char, List<Coordinate>> CharacterLookupDict;
+    private readonly int _height;
+    private readonly int _width;
+    private readonly char[,] _backingArray;
+    private readonly Dictionary<char, List<Coordinate>> _characterLookupDict;
 
     public Grid(string[] input)
     {
-        Height = input.Length;
-        Width = input[0].ToCharArray().Length;
+        _height = input.Length;
+        _width = input[0].ToCharArray().Length;
 
-        char[,] grid = new char[Height, Width];
+        char[,] grid = new char[_height, _width];
         Dictionary<char, List<Coordinate>> dict = [];
 
-        for (int i = 0; i < Height; i++)
+        for (int i = 0; i < _height; i++)
         {
             string row = input[i];
             List<char> chars = [.. row.ToCharArray()];
 
-            for (int j = 0; j < Width; j++)
+            for (int j = 0; j < _width; j++)
             {
                 char element = chars[j];
                 grid[i, j] = element;
 
                 dict.TryGetValue(element, out List<Coordinate>? positions);
                 positions ??= [];
-                positions.Add(new Coordinate(j, Height - 1 - i));
+                positions.Add(new Coordinate(j, _height - 1 - i));
                 dict[element] = positions;
             }
         }
 
-        BackingArray = grid;
-        CharacterLookupDict = dict;
+        _backingArray = grid;
+        _characterLookupDict = dict;
+    }
+
+    public HashSet<char> ListChars()
+    {
+         return [.. _characterLookupDict.Keys];
     }
 
     public List<Coordinate> GetCharacterCoordinates(char c)
     {
-        return CharacterLookupDict.TryGetValue(c, out List<Coordinate>? positions) ? [.. positions] : [];
+        return _characterLookupDict.TryGetValue(c, out List<Coordinate>? positions) ? [.. positions] : [];
     }
 
     public char GetCharAt(Coordinate position)
     {
         (int row, int column) = ToArrayIndices(position);
-        return BackingArray[row, column];
+        return _backingArray[row, column];
     }
 
     public void SetCharAt(Coordinate position, char character)
     {
         (int row, int column) = ToArrayIndices(position);
-        char previousCharacter = BackingArray[row, column];
-        List<Coordinate> previousPositions = CharacterLookupDict[previousCharacter];
+        char previousCharacter = _backingArray[row, column];
+        List<Coordinate> previousPositions = _characterLookupDict[previousCharacter];
         previousPositions.Remove(position);
         if (previousPositions.Count == 0)
         {
-            CharacterLookupDict.Remove(previousCharacter);
+            _characterLookupDict.Remove(previousCharacter);
         }
 
-        BackingArray[row, column] = character;
+        _backingArray[row, column] = character;
 
-        if (!CharacterLookupDict.TryGetValue(character, out List<Coordinate>? positions))
+        if (!_characterLookupDict.TryGetValue(character, out List<Coordinate>? positions))
         {
             positions = [];
-            CharacterLookupDict[character] = positions;
+            _characterLookupDict[character] = positions;
         }
         positions.Add(position);
     }
@@ -72,7 +79,21 @@ public sealed class Grid
         IsPositionOnGrid(position) ? GetCharAt(position) : fallback;
 
     public bool IsPositionOnGrid(Coordinate position) =>
-        position.X >= 0 && position.X < Width && position.Y >= 0 && position.Y < Height;
+        position.X >= 0 && position.X < _width && position.Y >= 0 && position.Y < _height;
 
-    private (int Row, int Column) ToArrayIndices(Coordinate position) => (Height - 1 - position.Y, position.X);
+    public override string ToString()
+    {
+        StringBuilder builder = new();
+        for (int i = 0; i < _height; i++)
+        {
+            for (int j = 0; j < _width; j++)
+            {
+                builder.Append(_backingArray[i, j]);
+            }
+            builder.AppendLine();
+        }
+        return builder.ToString();
+    }
+
+    private (int Row, int Column) ToArrayIndices(Coordinate position) => (_height - 1 - position.Y, position.X);
 }

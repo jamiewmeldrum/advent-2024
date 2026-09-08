@@ -4,13 +4,55 @@ public class Day08 : IDay
 {
     public long SolvePart1(string[] input)
     {
-        // TODO: implement
-        throw new NotImplementedException();
+        Grid grid = new(input);
+
+        foreach (var (_, coordinates) in GetAntennaGroups(grid))
+        {
+            foreach (Coordinate coordinate in coordinates)
+            {
+                foreach (Coordinate otherCoordinate in coordinates.Where(c => c != coordinate))
+                {
+                    Coordinate vector = coordinate.CalculateVector(otherCoordinate);
+                    Coordinate nextPosition = otherCoordinate.Add(vector);
+                    if (grid.IsPositionOnGrid(nextPosition))
+                    {
+                        grid.SetCharAt(nextPosition, '#');
+                    }
+                }
+            }
+        }
+
+        Console.WriteLine(grid);
+        return grid.GetCharacterCoordinates('#').Count;
     }
 
     public long SolvePart2(string[] input)
     {
-        // TODO: implement
-        throw new NotImplementedException();
+        Grid grid = new(input);
+
+        foreach (var (_, coordinates) in GetAntennaGroups(grid))
+        {
+            foreach (Coordinate coordinate in coordinates)
+            {
+                foreach (Coordinate otherCoordinate in coordinates.Where(c => c != coordinate))
+                {
+                    Coordinate vector = coordinate.CalculateVector(otherCoordinate);
+                    Coordinate nextPosition = coordinate.Add(vector);
+                    while (grid.IsPositionOnGrid(nextPosition))
+                    {
+                        grid.SetCharAt(nextPosition, '#');
+                        nextPosition = nextPosition.Add(vector);
+                    }
+                }
+            }
+        }
+
+        Console.WriteLine(grid);
+        return grid.GetCharacterCoordinates('#').Count;
     }
+
+    private static List<(char Antenna, List<Coordinate> Coordinates)> GetAntennaGroups(Grid grid) =>
+        [.. grid.ListChars()
+            .Where(c => c != '.')
+            .Select(c => (c, grid.GetCharacterCoordinates(c)))];
 }
