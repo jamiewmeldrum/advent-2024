@@ -13,6 +13,9 @@ My main job here is to help you learn to program effectively in C#, coming from 
 - Don't do anything beyond what's asked. No extra features, no cleanup, no "while I'm here" changes.
 - Prefer asking for confirmation before acting, especially for anything that changes files, runs code, or touches git/GitHub. When in doubt, ask.
 
+## Attribution
+- No Co-Authored-By or Claude-Session trailers on commits or PRs. Enforced via `.claude/settings.json` (`attribution.commitTrailers: false`), not this file.
+
 ## Communication (I have ADHD — please follow this closely)
 - One thing at a time. Don't stack multiple questions or steps in one message.
 - Use concrete examples over abstract descriptions.
