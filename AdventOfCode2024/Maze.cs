@@ -10,13 +10,13 @@ public class Maze
 
     private static readonly HashSet<char> CommandCharacters = [Up, Right, Down, Left];
 
-    private readonly Grid grid;
+    private readonly Grid<char> grid;
     private readonly List<(char Command, Coordinate Position)> path;
     private readonly HashSet<(char Command, Coordinate Position)> visitedStates;
     private bool hasExited;
     private bool closedLoopConfirmed;
 
-    public Maze(Grid grid)
+    public Maze(Grid<char> grid)
     {
         this.grid = grid;
 
@@ -33,7 +33,7 @@ public class Maze
 
     public void AddObstacleAt(Coordinate position)
     {
-        grid.SetCharAt(position, Wall);
+        grid.SetValueAt(position, Wall);
     }
 
     public List<Coordinate> GetVisitedPositions()
@@ -65,7 +65,7 @@ public class Maze
             return;
         }
 
-        if (grid.GetCharAt(nextPosition) == Wall)
+        if (grid.GetValueAt(nextPosition) == Wall)
         {
             (char Command, Coordinate Position) turnedState = (TurnClockwise(command), position);
             path.Add(turnedState);
@@ -83,7 +83,7 @@ public class Maze
         List<(char Command, Coordinate Position)> found =
         [
             .. CommandCharacters
-                .SelectMany(command => grid.GetCharacterCoordinates(command).Select(position => (Command: command, Position: position)))
+                .SelectMany(command => grid.GetCoordinatesOf(command).Select(position => (Command: command, Position: position)))
         ];
 
         if (found.Count != 1)

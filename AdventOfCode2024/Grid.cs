@@ -2,20 +2,20 @@ using System.Text;
 
 namespace AdventOfCode2024;
 
-public sealed class Grid
+public sealed class Grid<T> where T : IParsable<T>
 {
     private readonly int _height;
     private readonly int _width;
-    private readonly char[,] _backingArray;
-    private readonly Dictionary<char, List<Coordinate>> _characterLookupDict;
+    private readonly T[,] _backingArray;
+    private readonly Dictionary<T, List<Coordinate>> _characterLookupDict;
 
     public Grid(string[] input)
     {
         _height = input.Length;
         _width = input[0].ToCharArray().Length;
 
-        char[,] grid = new char[_height, _width];
-        Dictionary<char, List<Coordinate>> dict = [];
+        T[,] grid = new T[_height, _width];
+        Dictionary<T, List<Coordinate>> dict = [];
 
         for (int i = 0; i < _height; i++)
         {
@@ -24,7 +24,7 @@ public sealed class Grid
 
             for (int j = 0; j < _width; j++)
             {
-                char element = chars[j];
+                T element = T.Parse(chars[j].ToString(), null);
                 grid[i, j] = element;
 
                 dict.TryGetValue(element, out List<Coordinate>? positions);
@@ -38,48 +38,80 @@ public sealed class Grid
         _characterLookupDict = dict;
     }
 
-    public HashSet<char> ListChars()
+    private Grid(int height, int width, T emptyValue)
+    {
+        _height = height;
+        _width = width;
+
+        T[,] grid = new T[height, width];
+        List<Coordinate> emptyPositions = [];
+
+        for (int i = 0; i < height; i++)
+        {
+            for (int j = 0; j < width; j++)
+            {
+                grid[i, j] = emptyValue;
+                emptyPositions.Add(new Coordinate(j, height - 1 - i));
+            }
+        }
+
+        _backingArray = grid;
+        _characterLookupDict = new() { [emptyValue] = emptyPositions };
+    }
+
+    public Grid<T> CreateEmptyCopy(T emptyValue) => new(_height, _width, emptyValue);
+
+    public Grid<T> PopulateFromCoordinates(List<Coordinate> coordinates, T present)
+    {
+        foreach (Coordinate c in coordinates)
+        {
+            SetValueAt(c, present);
+        }
+        return this;
+    }
+
+    public HashSet<T> ListValues()
     {
          return [.. _characterLookupDict.Keys];
     }
 
-    public List<Coordinate> GetCharacterCoordinates(char c)
+    public List<Coordinate> GetCoordinatesOf(T value)
     {
-        return _characterLookupDict.TryGetValue(c, out List<Coordinate>? positions) ? [.. positions] : [];
+        return _characterLookupDict.TryGetValue(value, out List<Coordinate>? positions) ? [.. positions] : [];
     }
 
-    public char GetCharAt(Coordinate position)
+    public T GetValueAt(Coordinate position)
     {
         (int row, int column) = ToArrayIndices(position);
         return _backingArray[row, column];
     }
 
-    public void SetCharAt(Coordinate position, char character)
+    public void SetValueAt(Coordinate position, T value)
     {
         (int row, int column) = ToArrayIndices(position);
-        char previousCharacter = _backingArray[row, column];
-        List<Coordinate> previousPositions = _characterLookupDict[previousCharacter];
+        T previousValue = _backingArray[row, column];
+        List<Coordinate> previousPositions = _characterLookupDict[previousValue];
         previousPositions.Remove(position);
         if (previousPositions.Count == 0)
         {
-            _characterLookupDict.Remove(previousCharacter);
+            _characterLookupDict.Remove(previousValue);
         }
 
-        _backingArray[row, column] = character;
+        _backingArray[row, column] = value;
 
-        if (!_characterLookupDict.TryGetValue(character, out List<Coordinate>? positions))
+        if (!_characterLookupDict.TryGetValue(value, out List<Coordinate>? positions))
         {
             positions = [];
-            _characterLookupDict[character] = positions;
+            _characterLookupDict[value] = positions;
         }
         positions.Add(position);
     }
 
-    public char GetCharAt(Coordinate position, char fallback) =>
-        IsPositionOnGrid(position) ? GetCharAt(position) : fallback;
+    public T GetValueAt(Coordinate position, T fallback) =>
+        IsPositionOnGrid(position) ? GetValueAt(position) : fallback;
 
-    public bool IsPositionOnGrid(Coordinate position) =>
-        position.X >= 0 && position.X < _width && position.Y >= 0 && position.Y < _height;
+    public bool IsPositionOnGrid(Coordinate position) => IsPositionOnGrid(position.X, position.Y);
+    public bool IsPositionOnGrid(int x, int y) => x >= 0 && x < _width && y >= 0 && y < _height;
 
     public override string ToString()
     {

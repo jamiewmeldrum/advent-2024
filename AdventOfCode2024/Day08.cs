@@ -4,7 +4,7 @@ public class Day08 : IDay
 {
     public long SolvePart1(string[] input)
     {
-        Grid grid = new(input);
+        Grid<char> grid = new(input);
 
         foreach (var (_, coordinates) in GetAntennaGroups(grid))
         {
@@ -16,19 +16,19 @@ public class Day08 : IDay
                     Coordinate nextPosition = otherCoordinate.Add(vector);
                     if (grid.IsPositionOnGrid(nextPosition))
                     {
-                        grid.SetCharAt(nextPosition, '#');
+                        grid.SetValueAt(nextPosition, '#');
                     }
                 }
             }
         }
 
         Console.WriteLine(grid);
-        return grid.GetCharacterCoordinates('#').Count;
+        return grid.GetCoordinatesOf('#').Count;
     }
 
     public long SolvePart2(string[] input)
     {
-        Grid grid = new(input);
+        Grid<char> grid = new(input);
 
         foreach (var (_, coordinates) in GetAntennaGroups(grid))
         {
@@ -40,7 +40,7 @@ public class Day08 : IDay
                     Coordinate nextPosition = coordinate.Add(vector);
                     while (grid.IsPositionOnGrid(nextPosition))
                     {
-                        grid.SetCharAt(nextPosition, '#');
+                        grid.SetValueAt(nextPosition, '#');
                         nextPosition = nextPosition.Add(vector);
                     }
                 }
@@ -48,11 +48,11 @@ public class Day08 : IDay
         }
 
         Console.WriteLine(grid);
-        return grid.GetCharacterCoordinates('#').Count;
+        return grid.GetCoordinatesOf('#').Count;
     }
 
-    private static List<(char Antenna, List<Coordinate> Coordinates)> GetAntennaGroups(Grid grid) =>
-        [.. grid.ListChars()
+    private static List<(char Antenna, List<Coordinate> Coordinates)> GetAntennaGroups(Grid<char> grid) =>
+        [.. grid.ListValues()
             .Where(c => c != '.')
-            .Select(c => (c, grid.GetCharacterCoordinates(c)))];
+            .Select(c => (c, grid.GetCoordinatesOf(c)))];
 }

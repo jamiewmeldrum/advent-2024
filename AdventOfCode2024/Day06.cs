@@ -4,7 +4,7 @@ public class Day06 : IDay
 {
     public long SolvePart1(string[] input)
     {
-        Maze maze = new(new Grid(input));
+        Maze maze = new(new Grid<char>(input));
         do
         {
             maze.UpdateMaze();
@@ -16,7 +16,7 @@ public class Day06 : IDay
 
     public long SolvePart2(string[] input)
     {
-        Maze baseMaze = new(new Grid(input));
+        Maze baseMaze = new(new Grid<char>(input));
         do
         {
             baseMaze.UpdateMaze();
@@ -31,7 +31,7 @@ public class Day06 : IDay
         int closedLoops = 0;
         Parallel.ForEach(candidates, emptySpace =>
         {
-            Maze maze = new(new Grid(input));
+            Maze maze = new(new Grid<char>(input));
             maze.AddObstacleAt(emptySpace);
             do
             {
