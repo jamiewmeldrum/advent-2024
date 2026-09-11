@@ -128,4 +128,62 @@ public sealed class Grid<T> where T : IParsable<T>
     }
 
     private (int Row, int Column) ToArrayIndices(Coordinate position) => (_height - 1 - position.Y, position.X);
+
+    public List<(T value, List<(int x, int y)>)> GroupContiguousBlocks()
+    {
+        T? defaultValue = default;
+        T[,] copy = (T[,])_backingArray.Clone();
+
+        List<(T value, List<(int x, int y)>)> blocks = [];
+
+        for (int i = 0; i <_height; i++)
+        {
+            for (int j = 0; j <_width; j++)
+            {
+                var value = copy[i, j];
+                if (value.Equals(defaultValue))
+                {
+                    continue;
+                }
+
+                List<(int x, int y)> positions = [];
+                FindContiguousBlock(i, j, value, positions);
+                foreach (var position in positions)
+                {
+                    copy[position.x, position.y] = defaultValue;
+                }
+                blocks.Add((value, positions));
+            }
+        }
+
+        return blocks;
+    }
+
+    private readonly (int x, int y)[] Offsets = [(1, 0), (-1, 0), (0, 1), (0, -1)];
+
+    private List<(int x, int y)> AdjacentPositionsWithValue(int x, int y, T value) 
+    {
+        return [.. Offsets.Select(o => (o.x + x, o.y + y))
+        .Where(e => IsPositionOnGrid(e.Item1, e.Item2))
+        .Where(e => _backingArray[e.Item1, e.Item2].Equals(value))];
+    }
+
+    private void FindContiguousBlock(int x, int y, T value, List<(int x, int y)> positions)
+    {
+        positions.Add((x, y));
+        List<(int x, int y)> adjacentPositionsWithValue = AdjacentPositionsWithValue(x, y, value);
+        if (adjacentPositionsWithValue.Count == 0)
+        {
+            return ;
+        }
+        
+        foreach (var adjacentPositionWithValue in adjacentPositionsWithValue)
+        {
+            if (positions.Contains(adjacentPositionWithValue))
+            {
+                continue;
+            }
+            FindContiguousBlock(adjacentPositionWithValue.x, adjacentPositionWithValue.y, value, positions);
+        }
+    }
 }

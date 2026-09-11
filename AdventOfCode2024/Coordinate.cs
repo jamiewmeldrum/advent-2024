@@ -18,4 +18,14 @@ public readonly record struct Coordinate(int X, int Y)
     {
         return new Coordinate(other.X - X, other.Y - Y);
     }
+
+    private static readonly (int X, int Y)[] Offsets = [(1, 0), (-1, 0), (0, 1), (0, -1)];
+    public static int CountOverlappingEdges(List<Coordinate> coordinates)
+    {
+        int overlaps = 0;
+        foreach (Coordinate coordinate in coordinates) {
+            overlaps += Offsets.Select(o => coordinate.Add(o.X, o.Y)).Count(coordinates.Contains);
+        }
+        return overlaps;
+    }
 }
